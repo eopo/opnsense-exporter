@@ -91,6 +91,10 @@ func main() {
 		collectorOptionFuncs = append(collectorOptionFuncs, collector.WithoutOpenVPNCollector())
 		logger.Info("openvpn collector disabled")
 	}
+	if !collectorsSwitches.DHCP {
+		collectorOptionFuncs = append(collectorOptionFuncs, collector.WithoutDHCPCollector())
+		logger.Info("dhcp leases collector disabled")
+	}
 
 	collectorInstance, err := collector.New(&opnsenseClient, logger, *options.InstanceLabel, collectorOptionFuncs...)
 	if err != nil {

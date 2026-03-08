@@ -47,14 +47,25 @@ func (c *arpTableCollector) Update(client *opnsense.Client, ch chan<- prometheus
 		return err
 	}
 
+	// Build a hostname map from all DHCP backends so that ARP entries can be
+	// enriched with hostnames regardless of whether they originate from Kea,
+	// dnsmasq, or the ARP API itself.
+	dhcpHostnames := client.BuildDHCPHostnameMap()
+
 	for _, arp := range data.Arp {
+		hostname := arp.Hostname
+		if hostname == "" {
+			if h, ok := dhcpHostnames[arp.IP]; ok {
+				hostname = h
+			}
+		}
 		ch <- prometheus.MustNewConstMetric(
 			c.entries,
 			prometheus.GaugeValue,
 			1,
 			arp.IP,
 			arp.Mac,
-			arp.Hostname,
+			hostname,
 			arp.IntfDescription,
 			arp.Type,
 			fmt.Sprintf("%t", arp.Expired),
