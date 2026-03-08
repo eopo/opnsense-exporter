@@ -35,6 +35,10 @@ var (
 		"exporter.disable-firmware",
 		"Disable the scraping of the firmware metrics",
 	).Envar("OPNSENSE_EXPORTER_DISABLE_FIRMWARE").Default("false").Bool()
+	dhcpCollectorDisabled = kingpin.Flag(
+		"exporter.disable-dhcp-leases",
+		"Disable the scraping of DHCP leases (Kea and dnsmasq)",
+	).Envar("OPNSENSE_EXPORTER_DISABLE_DHCP_LEASES").Default("false").Bool()
 )
 
 // CollectorsDisableSwitch hold the enabled/disabled state of the collectors
@@ -47,6 +51,7 @@ type CollectorsDisableSwitch struct {
 	OpenVPN   bool
 	Firewall  bool
 	Firmware  bool
+	DHCP      bool
 }
 
 // CollectorsSwitches returns configured instances of CollectorsDisableSwitch
@@ -60,5 +65,6 @@ func CollectorsSwitches() CollectorsDisableSwitch {
 		OpenVPN:   !*openVPNCollectorDisabled,
 		Firewall:  !*firewallCollectorDisabled,
 		Firmware:  !*firmwareCollectorDisabled,
+		DHCP:      !*dhcpCollectorDisabled,
 	}
 }

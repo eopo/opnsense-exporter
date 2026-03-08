@@ -31,6 +31,7 @@ const (
 	ServicesSubsystem   = "services"
 	FirewallSubsystem   = "firewall"
 	FirmwareSubsystem   = "firmware"
+	DHCPSubsystem       = "dhcp_leases"
 )
 
 // CollectorInstance is the interface a service specific collectors must implement.
@@ -118,6 +119,12 @@ func WithoutFirmwareCollector() Option { return withoutCollectorInstance(Firmwar
 // removes the openvpn collector from the list of collectors
 func WithoutOpenVPNCollector() Option {
 	return withoutCollectorInstance(OpenVPNSubsystem)
+}
+
+// WithoutDHCPCollector Option
+// removes the dhcp_leases collector from the list of collectors
+func WithoutDHCPCollector() Option {
+	return withoutCollectorInstance(DHCPSubsystem)
 }
 
 // New creates a new Collector instance.

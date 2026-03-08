@@ -71,6 +71,7 @@ func NewClient(cfg options.OPNSenseConfig, userAgentVersion string, log *slog.Lo
 			"pfStatisticsByInterface": "api/diagnostics/firewall/pf_statistics/interfaces",
 			"arp":                     "api/diagnostics/interface/search_arp",
 			"dhcpv4":                  "api/dhcpv4/leases/searchLease",
+			"dhcpDnsmasq":             "api/dnsmasq/leases/searchLease",
 			"openVPNInstances":        "api/openvpn/instances/search",
 			"openVPNSessions":         "api/openvpn/service/search_sessions",
 			"gatewaysStatus":          "api/routing/settings/searchGateway",
