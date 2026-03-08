@@ -87,6 +87,43 @@ func (c *Client) FetchKEADHCPv4Leases() (DHCPLeases, *APICallError) {
 	return leases, nil
 }
 
+// hostnameMapFromLeases builds a hostname map from a slice of DHCPLease entries,
+// keyed by IP address. Leases without a hostname are skipped.
+func hostnameMapFromLeases(leases []DHCPLease) map[string]string {
+	m := make(map[string]string, len(leases))
+	for _, l := range leases {
+		if l.Hostname != "" {
+			m[l.Address] = l.Hostname
+		}
+	}
+	return m
+}
+
+// BuildDHCPHostnameMap builds a map of IP address to hostname by combining
+// leases from all available DHCP backends (Kea and dnsmasq). It silently
+// ignores failures from either backend so that a partial result is still
+// usable. This is used to enrich ARP table entries with hostnames
+// independently of which DHCP backend assigned the lease.
+// When both backends return a hostname for the same IP address, the
+// dnsmasq entry takes precedence (it is processed last).
+func (c *Client) BuildDHCPHostnameMap() map[string]string {
+	hostnameMap := make(map[string]string)
+
+	if keaLeases, err := c.FetchKEADHCPv4Leases(); err == nil {
+		for k, v := range hostnameMapFromLeases(keaLeases.Leases) {
+			hostnameMap[k] = v
+		}
+	}
+
+	if dnsmasqLeases, err := c.FetchDHCPDnsmasqLeases(); err == nil {
+		for k, v := range hostnameMapFromLeases(dnsmasqLeases.Leases) {
+			hostnameMap[k] = v
+		}
+	}
+
+	return hostnameMap
+}
+
 // FetchDHCPDnsmasqLeases fetches DHCP leases from the dnsmasq endpoint.
 func (c *Client) FetchDHCPDnsmasqLeases() (DHCPLeases, *APICallError) {
 	var resp dnsmasqDHCPSearchResponse
